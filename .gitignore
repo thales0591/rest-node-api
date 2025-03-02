@@ -1,4 +1,12 @@
+# Dependencies
 api_rest/node_modules
-api_rest/db
+
+# Databases
+api_rest/db/*.db
+
+# Environment
 .env
 .env.test
+
+# Build
+api_rest/build
