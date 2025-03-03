@@ -1,5 +1,6 @@
 # Dependencies
 api_rest/node_modules
+daily-diet-api/node_modules
 
 # Databases
 api_rest/db/*.db
