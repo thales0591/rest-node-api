@@ -4,6 +4,7 @@ daily-diet-api/node_modules
 
 # Databases
 api_rest/db/*.db
+daily-diet-api/db/*.db
 
 # Environment
 .env
