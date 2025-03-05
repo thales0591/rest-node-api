@@ -60,6 +60,6 @@ export async function createUserRoutes(app: FastifyInstance) {
       maxAge: 60 * 60 * 24 * 7,
     })
 
-    reply.status(201).send({ message: 'Usuário criado com sucesso!' })
+    reply.status(201).send({ message: 'User created successfully.' })
   })
 }
