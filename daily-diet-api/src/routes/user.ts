@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { knex } from '../database'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
+import { checkUserIsLogged } from '../middlewares/check-user-is-logged'
 
 export async function createUserRoutes(app: FastifyInstance) {
   app.post('/login', async (request, reply) => {
@@ -25,7 +26,7 @@ export async function createUserRoutes(app: FastifyInstance) {
 
     reply.setCookie('sessionId', searchUserResponse.id)
 
-    reply.status(200).send({ message: 'Successfully logged in.' })
+    return reply.status(200).send({ message: 'Successfully logged in.' })
   })
 
   app.post('/register', async (request, reply) => {
@@ -55,11 +56,58 @@ export async function createUserRoutes(app: FastifyInstance) {
       password,
     })
 
-    reply.setCookie('session_id', userId, {
+    reply.setCookie('sessionId', userId, {
       path: '/',
       maxAge: 60 * 60 * 24 * 7,
     })
 
-    reply.status(201).send({ message: 'User created successfully.' })
+    return reply.status(201).send({ message: 'User created successfully.' })
   })
+
+  app.get(
+    '/analytics',
+    {
+      preHandler: [checkUserIsLogged],
+    },
+    async (request, reply) => {
+      const sessionId = request.cookies.sessionId
+
+      const totalMealsRegistered = await knex('meals')
+        .count('*')
+        .where('userId', sessionId)
+
+      const totalMealsWithinDiet = await knex('meals').count().where({
+        userId: sessionId,
+        inDiet: true,
+      })
+
+      const totalMealsOutsideDiet = await knex('meals').count().where({
+        userId: sessionId,
+        inDiet: false,
+      })
+
+      const mealsInDietStreak = await knex('meals').where({
+        userId: sessionId,
+      })
+
+      let bestDaysInStreak = 0
+      let streakCounter = 0
+
+      mealsInDietStreak.forEach((ref) => {
+        streakCounter = ref.inDiet ? streakCounter + 1 : 0
+        if (streakCounter > bestDaysInStreak) {
+          bestDaysInStreak = streakCounter
+        }
+      })
+
+      return reply.status(200).send({
+        'Total number of meals registered': totalMealsRegistered[0]['count(*)'],
+        'Total number of meals within the diet':
+          totalMealsWithinDiet[0]['count(*)'],
+        'Total number of meals outside the diet':
+          totalMealsOutsideDiet[0]['count(*)'],
+        'Best streak of meals within the diet': bestDaysInStreak,
+      })
+    },
+  )
 }

@@ -1,3 +1,5 @@
+// eslint-disable-next-line
+import cookies from '@fastify/cookie'
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { knex } from '../database'
 
