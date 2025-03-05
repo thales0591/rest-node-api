@@ -1,7 +1,7 @@
 // eslint-disable-next-line
 import { Knex } from 'knex'
 
-declare module 'knex/tpyes/tables' {
+declare module 'knex/types/tables' {
   export interface Tables {
     users: {
       id: string
@@ -13,8 +13,9 @@ declare module 'knex/tpyes/tables' {
       name: string
       description: string
       created_at: string
-      in_diet: boolean
+      inDiet: boolean
       id: string
+      userId: string
     }
   }
 }
